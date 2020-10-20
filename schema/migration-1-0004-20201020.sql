@@ -7,13 +7,9 @@ DECLARE
 
 BEGIN
   SELECT stage_one + 1 INTO next_version FROM "schema_version";
-  IF next_version = 3 THEN
-    -- Used as the sum of tx outputs for an epoch.
-    -- Persistent does not support more precision than 'Int64' (support for 'Word64'
-    -- is done as a 'cast' to/from 'Int64' resulting in values greater than
-    -- 'maxBound :: Int64' being represented in the database as negative values.
-    -- Instead we we use 'Word128'.
-    EXECUTE 'CREATE DOMAIN outsum AS word128type;';
+  RAISE NOTICE 'next_version %', next_version;
+  IF next_version = 4 THEN
+    EXECUTE 'ALTER DOMAIN lovelace DROP CONSTRAINT lovelace_check; ';
 
     UPDATE "schema_version" SET stage_one = next_version;
     RAISE NOTICE 'DB has been migrated to stage_one version %', next_version;
